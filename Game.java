@@ -13,16 +13,15 @@ import java.util.Scanner;
 
 public class Game extends JPanel implements Runnable, KeyListener, MouseListener, MouseMotionListener {
 
-	private BufferedImage back;
-	private int key1, key2, screen, mX, mY, counter, last, last1, last2, pw, ph, Mcount, Rcount, CHcount, EMcount, ERcount, ECHcount, fatigue, StinkersL, Player1L, StinkersMaxL, Player1MaxL,dashtime, stinkerpopulation, stinkergenocide,  doublejump;
-	private boolean punch, playing, KO, fight, shoot, Next, replay;
+	private BufferedImage canvas;
+	private int key1, screen, mX, mY, counter, last, last1, last2, Mcount, Rcount, CHcount, EMcount, ERcount, ECHcount, fatigue, StinkersL, Player1L, StinkersMaxL, Player1MaxL,dashtime, stinkerpopulation, doublejump;
+	private boolean playing, KO, fight, Next, replay;
 	private ArrayList<NenUser> selectList;
 	private NenUser player1;
-	private Hatsu hatsu;
 	private Enhancer gon;
 	private Emitter killua;
 	private Conjurer kurapika;
-	private String selected, SaveFile, check, savedplayer;
+	private String selected, SaveFile, savedplayer;
 	private Color EnhancerG, EmitterB, ConjurerR;
 	private ImageIcon arena;
 	private Queue <NenUser> stinkers;
@@ -39,8 +38,8 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 		counter = 0;
 		playing=false;
 		selectList = setSelectList();
-		projectiles = setProjectiles();
-		StinkBombs = setStinkyProjectiles();
+		projectiles = new ArrayList<>();
+		StinkBombs = new ArrayList<>();
 		gon = new Enhancer(100, 210);
 		killua = new Emitter(750, 145);
 		kurapika = new Conjurer(1300, 100);
@@ -49,8 +48,7 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 		EmitterB = new Color(0, 45, 122);
 		ConjurerR = new Color(216, 47, 44);
 		arena = new ImageIcon("Arena.png");
-		stinkers = new LinkedList();
-		hatsu= new Hatsu();
+		stinkers = new LinkedList<>();
 		Mcount = 0;
 		Rcount = 0;
 		StinkersL=450;
@@ -58,7 +56,6 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 		SaveFile= "save.txt";
 		file = new File(SaveFile);
 		KO=true;
-		// GRR= new ImageIcon("GRR.gif");
 	}
 	
 	public ArrayList<NenUser> setSelectList() {
@@ -66,16 +63,6 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 		tempList.add(new Enhancer(100, 210));
 		tempList.add(new Emitter(750, 145));
 		tempList.add(new Conjurer(1300, 100));
-
-		return tempList;
-	}
-	public ArrayList <Hatsu> setProjectiles(){
-		ArrayList<Hatsu> tempList = new ArrayList();
-		return tempList;
-	}
-	
-	public ArrayList <Hatsu> setStinkyProjectiles(){
-		ArrayList<Hatsu> tempList = new ArrayList();
 		return tempList;
 	}
 	
@@ -91,29 +78,23 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 	
 
 	public void paint(Graphics g) {
-
 		Graphics2D twoDgraph = (Graphics2D) g;
-		if (back == null)
-			back = (BufferedImage) ((createImage(getWidth(), getHeight())));
+		if (canvas == null) {
+			canvas = (BufferedImage) ((createImage(getWidth(), getHeight())));
+		}
 
-		Graphics g2d = back.createGraphics();
+		Graphics g2d = canvas.createGraphics();
 
 		g2d.clearRect(0, 0, getSize().width, getSize().height);
 		counter++;
 		CHcount++;
 		ECHcount++;
-		/*System.out.println("count "+EMcount);
-		System.out.println("faatigue "+ fatigue);
-		System.out.println("pp"+count);
-		System.out.println("p1 "+ player1);*/
 		System.out.println("new player "+ savedplayer);
-		//System.out.println("check "+ check);
 		System.out.println("stinkersize "+stinkerpopulation);
-		//System.out.println("stinkerpopulation "+stinkergenocide);
 		switchScreen(g2d);
 		setScreen();
 
-		twoDgraph.drawImage(back, null, 0, 0);
+		twoDgraph.drawImage(canvas, null, 0, 0);
 
 	}
 	public void makeSave() {
@@ -134,8 +115,7 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 	public void writeSave() {
 		try {
 			FileWriter scribe = new FileWriter(SaveFile);
-			if(!stinkers.isEmpty()) {
-				//scribe.write("level\n"+stinkers.size()+ "\n");
+			if(!stinkers.isEmpty() && player1.getHealth() > 0) {
 				scribe.write(player1.getStandR()+"\n");
 				scribe.write("level\n"+ stinkers.size());
 			}
@@ -151,17 +131,11 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 		try {
 			Scanner sc = new Scanner(file);
 			
-			while(sc.hasNext()) {
-				/*if(sc.next().equals("level")) {
-				stinkerpopulation = Integer.parseInt(sc.next());
-				}*/
-				//if(sc.next().equals("player")) {
+			if(sc.hasNext()) {
 				savedplayer = sc.next();
 				if(sc.next().equals("level")) {
 				stinkerpopulation = Integer.parseInt(sc.next());
-				stinkergenocide= 3-stinkerpopulation;
 				}
-				//}
 			}
 		}
 		catch(Exception e) {
@@ -191,20 +165,17 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
 		key1 = e.getKeyCode();
 
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-
 		key1 = e.getKeyCode();
-		key2 = e.getKeyCode();
 		System.out.println(key1);
 		//press escape to return to menu
 		if (key1 == 27) {
+			if (screen == 3) { this.writeSave(); }
 			playing=false;
 			last = 0;
 			last1 = 0;
@@ -228,7 +199,7 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 				Player1MaxL= player1.getHealth();
 				StinkersMaxL= stinkers.element().getHealth();
 				if(replay) {
-				for(int i=0; i<stinkergenocide; i++) {
+				for(int i=4; i > stinkerpopulation; i--) {
 					stinkers.remove();}
 				}
 			}
@@ -284,7 +255,6 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 	@Override
 	public void keyReleased(KeyEvent e) {
 		key1 = e.getKeyCode();
-		key2 = e.getKeyCode();
 		if (key1 == 39) {
 			player1.setRun(false);	
 		}
@@ -298,20 +268,16 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		mX = arg0.getX();
 		mY = arg0.getY();
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		if (screen == 1) {
 			if ((mX > kurapika.getX()) && (mX < kurapika.getX() + kurapika.getW()) && (mY > kurapika.getY())
 					&& (mY < kurapika.getY() + kurapika.getH())) {
@@ -342,6 +308,7 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 				replay=false;
 			}
 			if((mX>325)&&(mX<1625)&&(mY>600)&&(mY<800)){
+				this.readSave();
 				if(savedplayer.equals("EstandR.gif")) {
 					player1 = new Enhancer(1200, 10);
 					player1.setW(675);
@@ -366,26 +333,18 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
 	public void attack() {
 		if(Mcount>30&&player1.MCollision(stinkers.element())) {
@@ -480,21 +439,11 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 			}
 			fight=false;
 		}
-		/*System.out.println("front "+Cringers.getX());
-		System.out.println("w "+ stinkers.element().getW());
-		System.out.println("pog "+ Poggers.getX());
-		System.out.println("direction " + stinkers.element().isLeft());
-		System.out.println("img "+ stinkers.element().getImg());
-		System.out.println("P1img "+ player1.getImg());*/
-		//System.out.println("attacking " + stinkers.element().isPunch());
 		if(EMcount>30&&stinkers.element().MCollision(player1)&&!player1.isDash()) {
-			//System.out.println("pre-punch: "+player1.getHealth());
 			player1.setHealth(player1.getHealth()-(stinkers.element().getMelee()/10));
-			//System.out.println("post-punch: "+player1.getHealth());
 			stinkers.element().setPunch(false);
 		}
 		if(stinkers.element().isShoot()&&ERcount==48) {
-			//System.out.println(player1.getX());
 			if(stinkers.element() instanceof Emitter) {
 				if(stinkers.element().isRight()) {
 					StinkBombs.add(new Electricity(stinkers.element().getX()+stinkers.element().getW(), stinkers.element().getY()+50, 15));
@@ -730,27 +679,15 @@ public class Game extends JPanel implements Runnable, KeyListener, MouseListener
 				stinkers.element().move(); 
 				attack();
 				Skynet();
-				//System.out.println(stinkers.element().getW());
 			}
 			System.out.println("dy "+ player1.getDy());
-			/*System.out.println("range:" +Rcount);
-			System.out.println(player1.isShoot());
-			System.out.println("punch:"+player1.isPunch());
-			System.out.println("ypos:"+player1.getY());
-			System.out.println("run:"+player1.getDx());
-			System.out.println(projectiles.size());
-			System.out.println("punching "+ stinkers.element().isPunch());
-			System.out.println("meleeD "+ stinkers.element().getMelee());
-			System.out.println("PLayer 1:"+(player1.getY()+player1.getH()));*/
 			for(Hatsu h: projectiles) {
 				h.move();
 				h.drawHatsu(g2d);
-				//System.out.println(h.getAttack());
 			}
 			for(Hatsu S: StinkBombs) {
 				S.move();
 				S.drawHatsu(g2d);
-				//System.out.println(h.getAttack());
 			}
 			break;
 		case 4:

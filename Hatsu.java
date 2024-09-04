@@ -55,10 +55,6 @@ public class Hatsu {
 	}
 	public void drawHatsu(Graphics g2d) {
 		g2d.drawImage(attack.getImage(), x, y, w, h, null);
-		/*System.out.println("x"+x);
-		System.out.println("y"+y);
-		System.out.println("w"+w);
-		System.out.println("h"+h);*/
 	}
 	public void move() {
 		x+=dx;

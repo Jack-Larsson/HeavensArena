@@ -173,7 +173,6 @@ public class NenUser {
 
 	public void setPunch(boolean punch) {
 		this.punch = punch;
-		//System.out.println(punch);
 	}
 	public boolean isRight() {
 		return right;
@@ -227,8 +226,6 @@ public class NenUser {
 
 	public void drawUser(Graphics g2d) {
 		g2d.drawImage(img.getImage(), x, y, w, h, null);
-
-		// if running boolean draw run
 	}
 
 	public void setAnimation() {
@@ -300,10 +297,6 @@ public class NenUser {
 	public void move() {
 		x += dx;
 		y += dy;
-		/*standY+= dy;
-		punchY+= dy;
-		runY+= dy;
-		shootY+= dy;*/
 		if (x + w > 1920) {
 			x = 1920 - w;
 		}
@@ -323,8 +316,6 @@ public class NenUser {
 		}
 	}
 	public void melee(int time) {
-		//System.out.println("time"+time);
-		//System.out.println("punch"+punch);
 		if(time>67) {
 			setPunch(false);
 			if(isLeft()) {
@@ -335,9 +326,6 @@ public class NenUser {
 	public void range(int time) {
 		if(time>80) {
 			setShoot(false);
-			/*if(isLeft()) {
-				setX(getX()+punchW);
-			}*/
 		}
 	}
 	public void dash(int timer) {
